@@ -8,6 +8,6 @@
 
 #import <UIKit/UIKit.h>
 
-@interface ViewController : UIViewController <BCOVPlaybackControllerDelegate>
+@interface ViewController : UIViewController <BCOVPlaybackControllerDelegate, IMAWebOpenerDelegate>
 
 @end

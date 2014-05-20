@@ -25,6 +25,7 @@ static NSString * const kViewControllerPlaylistReferenceID = @"ios_videos";
 @interface ViewController ()
 
 @property (nonatomic, assign) BOOL adIsPlaying;
+@property (nonatomic, assign) BOOL isBrowserOpen;
 @property (nonatomic, strong) BCOVCatalogService *catalogService;
 @property (nonatomic, weak) id<BCOVPlaybackSession> currentPlaybackSession;
 @property (nonatomic, strong) id<BCOVPlaybackController> playbackController;
@@ -80,6 +81,7 @@ static NSString * const kViewControllerPlaylistReferenceID = @"ios_videos";
 -(void)setup
 {
     self.adIsPlaying = NO;
+    self.isBrowserOpen = NO;
     
     BCOVPlayerSDKManager *playbackManager = [BCOVPlayerSDKManager sharedManager];
     
@@ -97,6 +99,7 @@ static NSString * const kViewControllerPlaylistReferenceID = @"ios_videos";
     
     IMAAdsRenderingSettings *renderSettings = [[IMAAdsRenderingSettings alloc] init];
     renderSettings.webOpenerPresentingController = self;
+    renderSettings.webOpenerDelegate = self;
     
     // Create an IMA session provider. We pass the Widevine session provider
     // as the upstream session provider, thus creating our pipeline.
@@ -119,7 +122,7 @@ static NSString * const kViewControllerPlaylistReferenceID = @"ios_videos";
         
         @strongify(self);
         
-        if (self.adIsPlaying)
+        if (self.adIsPlaying && !self.isBrowserOpen)
         {
             [self.playbackController resumeAd];
         }
@@ -128,6 +131,16 @@ static NSString * const kViewControllerPlaylistReferenceID = @"ios_videos";
     
     self.catalogService = [[BCOVCatalogService alloc] initWithToken:kViewControllerCatalogToken];
     [self requestContentFromCatalog];
+}
+
+- (void)willOpenInAppBrowser
+{
+    self.isBrowserOpen = YES;
+}
+
+- (void)willCloseInAppBrowser
+{
+    self.isBrowserOpen = NO;
 }
 
 -(void)playbackController:(id<BCOVPlaybackController>)controller didAdvanceToPlaybackSession:(id<BCOVPlaybackSession>)session
